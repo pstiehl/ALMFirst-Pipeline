@@ -6,8 +6,10 @@
 #             metric names come from src/almpipe/metrics.py (fractions: 0.12 = 12%).
 #             op is one of: gt, lt, between (value: [lo, hi]), notnull_gt
 #   base:     points every CU inside the gate gets (size alone makes it a fit).
-#   fee:      PLACEHOLDER revenue model used to rank by money. Replace with real
-#             ALM First pricing once Phil has it. annual = clamp(min, max, bps * basis).
+#   fee:      ESTIMATED revenue model used to rank by money. Structure follows ALM
+#             First's Form ADV Part 2A (3/30/2026): advisory = fixed annual fee
+#             (scaled here by size), discretionary = asset-based bps. Levels are
+#             estimates; swap in the real rate card when available. annual = clamp(min, max, bps * basis).
 #             basis: assets | investments | discretionary_aum | flat
 #
 # Every number below is a starting guess from public info, not ALM First policy.
@@ -27,7 +29,7 @@ products:
       - {metric: share_growth_yoy, op: lt, value: 0.0, points: 15, reason: "Shares shrinking year over year"}
       - {metric: afs_loss_to_nw, op: gt, value: 0.15, points: 15, reason: "Unrealized AFS losses >15% of net worth"}
       - {metric: roa, op: lt, value: 0.004, points: 10, reason: "ROA <0.40% (margin compression)"}
-    fee: {basis: assets, bps: 1.0, min: 30000, max: 300000}
+    fee: {basis: flat, min: 30000, scale_with_assets: {per_billion: 12000, cap: 250000}}
 
   investment_advisory:
     label: Investment Advisory
@@ -39,7 +41,7 @@ products:
       - {metric: cash_pct, op: gt, value: 0.10, points: 25, reason: "Cash >10% of assets (idle liquidity)"}
       - {metric: afs_loss_to_nw, op: gt, value: 0.15, points: 20, reason: "Underwater AFS book — restructuring conversation"}
       - {metric: loan_to_share, op: lt, value: 0.70, points: 15, reason: "Low loan demand, portfolio carries earnings"}
-    fee: {basis: investments, bps: 4.0, min: 25000, max: 250000}
+    fee: {basis: flat, min: 25000, scale_with_assets: {per_billion: 8000, cap: 150000}}
 
   model_validation:
     label: ALM Model Validation
@@ -73,4 +75,4 @@ products:
       - {metric: nw_ratio, op: gt, value: 0.11, points: 20, reason: "Net worth >11% — room for a CDA (capped at 5% of NW)"}
       - {metric: roa, op: gt, value: 0.008, points: 15, reason: "ROA >0.80% — can fund long-horizon accounts"}
       - {metric: employees, op: gt, value: 200, points: 15, reason: "200+ staff — benefit liabilities worth pre-funding"}
-    fee: {basis: discretionary_aum, bps: 30, min: 10000, max: 250000}
+    fee: {basis: discretionary_aum, bps: 20, min: 10000, max: 150000}

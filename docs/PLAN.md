@@ -11,7 +11,7 @@
 
 ## v1: once Phil has internal data
 - [ ] **Client list** → `data/private/clients.csv` (`cu_number` column). Hides current clients as prospects; later, a cross-sell view
-- [ ] **Real product pricing** → replace the placeholder `fee:` blocks in `products.yaml`, so ranking reflects real dollars
+- [x] Fee **structure** aligned to ALM First Form ADV 2A (fixed annual advisory fees, asset-based discretionary). Levels are still estimates
 - [ ] **Salesforce report columns**: lock the import mapping, and bring in owner, last activity and open opportunities
 - [ ] Confirm the product definitions (CPST especially; see below)
 
@@ -23,7 +23,7 @@
 - [ ] Merger watch (NCUA merger notices) and conference and league events by state
 
 ## Assumptions to confirm (Phil)
-1. **CPST = Capital Planning & Stress Testing.** This is inferred from ALM First's public "Senior Director, CPST Policy & Regulation" role.
+1. **CPST = Capital Planning & Stress Testing** (NCUA Part 702 Subpart C: required at $10B+). Resolved from public sources.
    NCUA requires capital planning and stress testing for "covered" credit unions with $10B+ in assets. The scoring treats $10B+ as required
    and $5B to $10B as the prep market.
 2. **Discretionary management** targets CUs that already fund benefit plans (split-dollar / collateral-assignment life insurance, 5300
