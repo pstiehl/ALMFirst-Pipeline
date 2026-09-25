@@ -1,0 +1,76 @@
+# Product-fit rules. EDIT ME — this is the brain of the target list.
+#
+# Each product:
+#   gate:     hard size limits (total assets, $M). Outside the gate => fit 0.
+#   signals:  if the metric test passes, add `points` and show `reason`.
+#             metric names come from src/almpipe/metrics.py (fractions: 0.12 = 12%).
+#             op is one of: gt, lt, between (value: [lo, hi]), notnull_gt
+#   base:     points every CU inside the gate gets (size alone makes it a fit).
+#   fee:      PLACEHOLDER revenue model used to rank by money. Replace with real
+#             ALM First pricing once Phil has it. annual = clamp(min, max, bps * basis).
+#             basis: assets | investments | discretionary_aum | flat
+#
+# Every number below is a starting guess from public info, not ALM First policy.
+
+products:
+  alm_advisory:
+    label: ALM Advisory (core balance-sheet management)
+    pitch: Interest-rate and liquidity risk management, strategy, board reporting.
+    gate: {min_assets_m: 100, max_assets_m: 1000000}
+    base: 20
+    signals:
+      - {metric: long_asset_pct, op: gt, value: 0.30, points: 25, reason: "Long assets >30% of balance sheet (rate-risk exposure)"}
+      - {metric: loan_to_share, op: gt, value: 0.95, points: 20, reason: "Loan-to-share >95% (funding / liquidity pressure)"}
+      - {metric: loan_to_share, op: lt, value: 0.60, points: 10, reason: "Loan-to-share <60% (excess liquidity to deploy)"}
+      - {metric: nw_ratio, op: lt, value: 0.08, points: 20, reason: "Net worth ratio <8% (capital thin)"}
+      - {metric: borrow_pct, op: gt, value: 0.05, points: 10, reason: "Borrowings >5% of assets"}
+      - {metric: share_growth_yoy, op: lt, value: 0.0, points: 15, reason: "Shares shrinking year over year"}
+      - {metric: afs_loss_to_nw, op: gt, value: 0.15, points: 15, reason: "Unrealized AFS losses >15% of net worth"}
+      - {metric: roa, op: lt, value: 0.004, points: 10, reason: "ROA <0.40% (margin compression)"}
+    fee: {basis: assets, bps: 1.0, min: 30000, max: 300000}
+
+  investment_advisory:
+    label: Investment Advisory
+    pitch: Portfolio strategy, security selection and execution for the investment book.
+    gate: {min_assets_m: 100, max_assets_m: 1000000}
+    base: 10
+    signals:
+      - {metric: inv_pct, op: gt, value: 0.20, points: 30, reason: "Investments >20% of assets"}
+      - {metric: cash_pct, op: gt, value: 0.10, points: 25, reason: "Cash >10% of assets (idle liquidity)"}
+      - {metric: afs_loss_to_nw, op: gt, value: 0.15, points: 20, reason: "Underwater AFS book — restructuring conversation"}
+      - {metric: loan_to_share, op: lt, value: 0.70, points: 15, reason: "Low loan demand, portfolio carries earnings"}
+    fee: {basis: investments, bps: 4.0, min: 25000, max: 250000}
+
+  model_validation:
+    label: ALM Model Validation
+    pitch: Independent validation of the credit union's ALM/IRR model (exam expectation).
+    gate: {min_assets_m: 250, max_assets_m: 1000000}
+    base: 35
+    signals:
+      - {metric: assets_m, op: gt, value: 1000, points: 25, reason: "$1B+ — likely runs an in-house ALM model"}
+      - {metric: mortgage_pct, op: gt, value: 0.30, points: 15, reason: "Mortgage-heavy — prepayment assumptions matter"}
+      - {metric: borrow_pct, op: gt, value: 0.05, points: 10, reason: "Wholesale funding adds model complexity"}
+    fee: {basis: flat, min: 20000, max: 20000, scale_with_assets: {per_billion: 10000, cap: 75000}}
+
+  cpst:
+    label: CPST (Capital Planning & Stress Testing)
+    pitch: NCUA capital planning / stress testing — required at $10B+, prep for those approaching it.
+    gate: {min_assets_m: 3000, max_assets_m: 1000000}
+    base: 20
+    signals:
+      - {metric: assets_m, op: gt, value: 10000, points: 70, reason: "$10B+ covered credit union — CPST required"}
+      - {metric: assets_m, op: between, value: [5000, 10000], points: 50, reason: "$5-10B — approaching $10B covered threshold"}
+      - {metric: asset_growth_yoy, op: gt, value: 0.08, points: 15, reason: "Growing >8%/yr toward the threshold"}
+    fee: {basis: flat, min: 100000, max: 100000}
+
+  discretionary:
+    label: Discretionary Portfolio Mgmt (pre-funding / CDA)
+    pitch: Managed accounts for employee-benefit pre-funding (701.19) and charitable donation accounts.
+    gate: {min_assets_m: 200, max_assets_m: 1000000}
+    base: 10
+    signals:
+      - {metric: emp_benefit_m, op: gt, value: 1, points: 40, reason: "Already funds benefit plans via life-insurance assets (NV0170/NV0173)"}
+      - {metric: nw_ratio, op: gt, value: 0.11, points: 20, reason: "Net worth >11% — room for a CDA (capped at 5% of NW)"}
+      - {metric: roa, op: gt, value: 0.008, points: 15, reason: "ROA >0.80% — can fund long-horizon accounts"}
+      - {metric: employees, op: gt, value: 200, points: 15, reason: "200+ staff — benefit liabilities worth pre-funding"}
+    fee: {basis: discretionary_aum, bps: 30, min: 10000, max: 250000}

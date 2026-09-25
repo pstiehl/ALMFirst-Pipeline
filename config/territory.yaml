@@ -1,0 +1,9 @@
+# Phil's territory. Edit the list; the app and target list follow it.
+# Map + ranking show only these states; the dataset keeps all US credit
+# unions so peer comparisons stay national.
+name: Southeast
+states: [FL, GA, AL, MS, TN, SC, NC, AR, LA, KY, VA]
+
+# Ignore credit unions smaller than this (total assets, $M). Tiny CUs rarely
+# buy advisory services and would bury the list.
+min_assets_m: 50
