@@ -1,0 +1,9 @@
+# Credit unions with a PUBLICLY documented ALM First relationship.
+# Flagged as "Existing relationship: cross-sell" instead of a cold prospect.
+# Add the real client list later in data/private/clients.csv (git-ignored).
+known:
+  - cu_number: "67297"
+    name: SPACE COAST
+    state: FL
+    source: "ALM First press release, Dec 20 2023: consultant on SCCU's $422M auto-loan securitization"
+    url: https://platformllc.com/alm-first-assists-space-coast-credit-union-with-422m-securitization/

@@ -27,6 +27,15 @@ python scripts/build_data.py            # newest quarter
 python scripts/build_data.py --quarter 2026-09
 ```
 
+## HTML report (no install)
+
+`docs/report.html` is a single file with the map, ranked targets, per-CU detail and the scoring rules.
+Double-click it to open in any browser. Rebuild it after editing `config/*.yaml`:
+
+```bash
+python scripts/build_report.py
+```
+
 ## Tabs
 
 | Tab | What it does |
