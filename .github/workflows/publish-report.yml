@@ -1,0 +1,30 @@
+# Rebuild docs/report.html and publish it to GitHub Pages (gh-pages branch)
+# on every merge to main. Live at https://pstiehl.github.io/ALMFirst-Pipeline/
+# PR previews are pushed by Ada to gh-pages/preview/<branch>/ and are kept.
+name: publish-report
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -r requirements.txt
+      - run: python scripts/build_report.py
+      - name: Push to gh-pages (root only; keep preview/)
+        run: |
+          set -e
+          git fetch origin gh-pages || true
+          mkdir -p /tmp/site && cp docs/report.html /tmp/site/index.html && cp docs/report.html /tmp/site/report.html
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git show-ref --quiet refs/remotes/origin/gh-pages; then git checkout -B gh-pages origin/gh-pages; else git checkout --orphan gh-pages; git rm -rfq .; fi
+          cp /tmp/site/*.html . && touch .nojekyll
+          git add index.html report.html .nojekyll
+          git commit -m "Publish report from ${GITHUB_SHA::7}" || echo "no changes"
+          git push origin gh-pages
